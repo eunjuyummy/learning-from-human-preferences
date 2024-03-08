@@ -190,7 +190,6 @@ def save_prefs(log_dir, pref_db_train, pref_db_val):
     pref_db_val.save(val_path)
     print("Saved validation preferences to '{}'".format(val_path))
 
-
 def save_make_reward_predictor(log_dir, make_reward_predictor):
     save_dir = osp.join(log_dir, 'reward_predictor_checkpoints')
     os.makedirs(save_dir, exist_ok=True)
@@ -321,6 +320,7 @@ def start_reward_predictor_training(cluster_dict,
         rew_pred.init_network(load_ckpt_dir)
 
         if prefs_dir is not None:
+            print("@prefs_dir is not None")
             train_path = osp.join(prefs_dir, 'train.pkl.gz')
             pref_db_train = PrefDB.load(train_path)
             print("Loaded training preferences from '{}'".format(train_path))
@@ -343,7 +343,6 @@ def start_reward_predictor_training(cluster_dict,
         pref_buffer.start_recv_thread(pref_pipe)
         if prefs_dir is None:
             pref_buffer.wait_until_len(n_initial_prefs)
-
         save_prefs(log_dir, pref_db_train, pref_db_val)
 
         if not load_ckpt_dir:
@@ -366,8 +365,8 @@ def start_reward_predictor_training(cluster_dict,
             return
 
         start_policy_training_pipe.put(True)
-        
         i = 0
+
         while True:
             pref_db_train, pref_db_val = pref_buffer.get_dbs()
             save_prefs(log_dir, pref_db_train, pref_db_val)
